@@ -1039,6 +1039,9 @@ public class ResourcesHandler {
 			if (type.getDottedName().toLowerCase().contains("jmx") && 
 					!(pc.peekReachedBy()==ReachedBy.Import || pc.peekReachedBy()==ReachedBy.NestedReference)) {
 				SpringFeature.log(type.getDottedName()+" FAILED validation - it has 'jmx' in it - returning FALSE");
+				if (!ConfigOptions.shouldRemoveUnusedAutoconfig()) {
+					resourcesRegistry.addResources(type.getDottedName().replace(".", "/")+".class");
+				}
 				return false;
 			}
 		}
@@ -1275,6 +1278,9 @@ public class ResourcesHandler {
 		checkForImportedConfigurations(type, toFollow);
 
 		if (passesTests || !ConfigOptions.shouldRemoveUnusedAutoconfig()) {
+			if (type.isAtComponent()) {
+				type.verifyComponent();
+			}
 			if (type.isAtConfiguration()) {
 				checkForAutoConfigureBeforeOrAfter(type, accessManager);
 				String[][] validMethodsSubset = processTypeAtBeanMethods(pc, accessManager, toFollow, type);
@@ -1619,6 +1625,13 @@ public class ResourcesHandler {
 			boolean passesTests = true;
 			
 			// boolean methodAnnotatedAtConfigurationProperties = atBeanMethod.hasAnnotation(Type.AtConfigurationProperties, false);
+			
+			// Check if resolvable...
+			boolean hasUnresolvableTypesInSignature = atBeanMethod.hasUnresolvableTypesInSignature();
+			if (hasUnresolvableTypesInSignature) {
+				anyMethodFailedValidation = true;
+				continue;
+			}
 			
 			Type returnType = atBeanMethod.getReturnType();
 			if (returnType == null) {
