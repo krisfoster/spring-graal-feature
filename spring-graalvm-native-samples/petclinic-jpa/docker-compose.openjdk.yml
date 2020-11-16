@@ -13,21 +13,14 @@ services:
       - ./src/main/resources/db/mysql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./src/main/resources/db/mysql/data.sql:/docker-entrypoint-initdb.d/2-data.sql
   petclinic-jpa:
-    image: krisfoster/pet-clinic-jpa:ni-distroless
-    mem_limit: 48m
-    memswap_limit: 48m
-    cpu_count: 1
-    cpu_percent: 50
-    cpus: 0.5
+    image: krisfoster/pet-clinic-jpa:openjdk
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpu_count: 2
+    cpu_percent: 100
+    cpus: 2
+    cpuset: 0,1
     ports:
-      - "8080"
+      - "8081:8080"
     depends_on:
       - mysql-server
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - petclinic-jpa
-    ports:
-      - "8081:8081"

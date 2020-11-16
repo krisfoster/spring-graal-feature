@@ -1,0 +1,8 @@
+FROM krisfoster/graal-ee-ol-base-new:20.3.0-JDK11 as compiler
+
+COPY target/${JAR_FILE} ./target/
+COPY compile.sh .
+
+RUN mkdir -p ni \
+    && source /etc/environment \
+    && ./compile.sh
