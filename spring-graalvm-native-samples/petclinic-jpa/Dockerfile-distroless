@@ -1,0 +1,3 @@
+FROM gcr.io/distroless/base
+COPY builds/petclinic-jpa-distroless app
+ENTRYPOINT ["/app"]
