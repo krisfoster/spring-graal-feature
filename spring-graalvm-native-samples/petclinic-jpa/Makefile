@@ -19,18 +19,15 @@ $(JAR_FILE):
 build: $(JAR_FILE)
 
 compile-on-docker:
-	docker build -f Dockerfile-build-ni \
+	docker build \
 		-f Dockerfile-compile \
-    	--memory: 12g \
-    	--memory_swap: 12g \
-    	--cpuset_cpus: 0-6 \
 		-t krisfoster/pet-clinic-jpa:compile .
 
 build-native-image:
 	docker build \
 		--compress \
 		-f Dockerfile-distroless \
-		-t krisfoster/pet-clinic-jpa:ni-distroless .
+		-t krisfoster/pet-clinic-jpa:ni-distroless-xmx32 .
 
 copy-exe:
 	id=$$(docker create $(IMG_NAME))

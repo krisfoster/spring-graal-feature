@@ -19,6 +19,7 @@ CP=BOOT-INF/classes:${LIBPATH}
 
 # Other parmas we may need
 #--enable-all-security-services \
+#    --gc=G1 \
 native-image \
     --verbose \
     --allow-incomplete-classpath \
@@ -29,7 +30,9 @@ native-image \
     -H:TraceClassInitialization=true \
     -H:+ReportExceptionStackTraces \
     -H:+StaticExecutableWithDynamicLibC \
-    -Dspring.spel.ignore=true \
+    --pgo-instrument \
+    -R:MaxHeapSize=32m \
+    -R:MaxNewSize=16m \
     -Dspring.native.remove-yaml-support=true \
     -cp ${CP} \
     ${MAINCLASS}
