@@ -1,0 +1,21 @@
+#FROM openjdk:12-alpine
+#FROM openjdk:12-oraclelinux7
+FROM amazoncorretto:11.0.9-alpine
+
+ARG JAR_FILE
+
+COPY ./target/${JAR_FILE} app.jar
+
+# Install psrecord
+RUN apk add --update alpine-sdk openssl-dev build-base
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
+RUN apk add --update --no-cache py3-psutil
+RUN rm -rf /var/cache/apk/*
+RUN pip install --upgrade pip
+RUN pip install psrecord
+
+#ENTRYPOINT ["psrecord", "java -jar ./app.jar", "--log", "/report/openjdk-profile.prof"]
+CMD sleep 10s && java $JAVA_OPTIONS -jar ./app.jar

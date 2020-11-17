@@ -1,0 +1,35 @@
+FROM krisfoster/graal-ee-ol-base-new:20.2.0-JDK11 as compiler
+
+#FROM krisfoster/graal-ee-java11-ol:20.2.0 as compiler
+
+ARG JAR_FILE
+ARG MAIN_CLASS
+ARG ARTIFACT=ni-app
+
+COPY target/${JAR_FILE} app.jar
+
+RUN mkdir -p ni \
+    && source /etc/environment \
+    && cd ni || exit \
+    && jar -xvf ../app.jar \
+    && cp -R META-INF BOOT-INF/classes \
+    && LIBPATH=`find BOOT-INF/lib | tr '\n' ':'` \
+    && CP=BOOT-INF/classes:${LIBPATH} \
+    && native-image \
+        --verbose \
+        --enable-all-security-services \
+        --allow-incomplete-classpath \
+        --no-fallback \
+        -H:Name=${ARTIFACT} \
+        -H:+TraceClassInitialization \
+        -H:+ReportExceptionStackTraces \
+        -Dspring.spel.ignore=true \
+        -Dspring.native.remove-yaml-support=true \
+        -cp ${CP} ${MAIN_CLASS}
+
+FROM krisfoster/alpine-psrecord:0.1
+
+COPY --from=compiler /ni/${ARTIFACT} /
+
+#ENTRYPOINT ["psrecord", "/ni-app", "--log", "/report/ni-profile.prof"]
+CMD sleep 10s && /ni-app
