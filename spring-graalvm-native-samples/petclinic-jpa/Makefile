@@ -27,7 +27,7 @@ build-native-image:
 	docker build \
 		--compress \
 		-f Dockerfile-distroless \
-		-t krisfoster/pet-clinic-jpa:ni-distroless-xmx32 .
+		-t krisfoster/pet-clinic-jpa:ni-distroless-xmx32-pgo-instrument .
 
 copy-exe:
 	id=$$(docker create $(IMG_NAME))

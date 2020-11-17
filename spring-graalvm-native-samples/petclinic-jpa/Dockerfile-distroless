@@ -1,3 +1,3 @@
 FROM gcr.io/distroless/base
-COPY builds/target/petclinic-jpa-xmx32 app
+COPY builds/target/petclinic-jpa-xmx32-pgo-instrument app
 ENTRYPOINT ["/app"]

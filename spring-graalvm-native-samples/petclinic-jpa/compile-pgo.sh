@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-ARTIFACT=data-redis
+ARTIFACT=petclinic-jpa
+MAINCLASS=org.springframework.samples.petclinic.PetClinicApplication
 VERSION=0.0.1-SNAPSHOT
 
-MAIN_CLASS=com.example.data.redis.RedisApplication
 JAR_FILE=${ARTIFACT}-${VERSION}.jar
 
 GREEN='\033[0;32m'
@@ -19,23 +19,28 @@ CP=BOOT-INF/classes:${LIBPATH}
 
 # Other parmas we may need
 #--enable-all-security-services \
+#    --gc=G1 \
 native-image \
     --verbose \
     --allow-incomplete-classpath \
     --no-fallback \
+    --no-server \
+    --enable-all-security-services \
     -H:Name=${ARTIFACT} \
-    -H:+TraceClassInitialization \
+    -H:TraceClassInitialization=true \
     -H:+ReportExceptionStackTraces \
     -H:+StaticExecutableWithDynamicLibC \
-    -Dspring.spel.ignore=true \
+    --pgo=../default.iprof \
+    -R:MaxHeapSize=32m \
+    -R:MaxNewSize=16m \
     -Dspring.native.remove-yaml-support=true \
     -cp ${CP} \
-    ${MAIN_CLASS}
+    ${MAINCLASS}
 
 if [[ -f $ARTIFACT ]]
 then
   printf "${GREEN}SUCCESS${NC}\n"
-  mv ./$ARTIFACT ../../builds/target
+  mv ./$ARTIFACT /
   exit 0
 else
   cat output.txt

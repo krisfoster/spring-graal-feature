@@ -35,7 +35,7 @@ public class CLR implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-
+		long startTime = System.nanoTime();
 		System.out.println("\n\n");
 		System.out.println("+---- REDIS ----+");
 
@@ -61,22 +61,41 @@ public class CLR implements CommandLineRunner {
 			reactiveTemplate.opsForValue().get("reactive-token").defaultIfEmpty("FAIL").doOnNext(System.out::println).block(Duration.ofSeconds(1));
 		}
 
-		Person eddard = new Person("eddard", "stark");
+		for (int i=0; i< 10000; i++) {
+			//
+			final String firstName = "Eddard-" + Integer.toString(i);
+			final String lastName = "Stark-" + Integer.toString(i);
+			Person eddard = new Person(firstName, lastName);
 
-		{ //
-			System.out.print("- Repository Support: ");
-			repository.save(eddard);
+			{ //
+				//System.out.print("- Repository Support: ");
+				repository.save(eddard);
 
-			if (!template.hasKey("persons:" + eddard.getId())) {
-
-				System.out.println("FAIL");
-				return;
+				if (!template.hasKey("persons:" + eddard.getId())) {
+					System.out.print("- Repository Support: ");
+					System.out.println("FAIL");
+					return;
+				}
+				//System.out.println(repository.findByLastname(eddard.getLastname()).isEmpty() ? "FAIL" : "OK");
 			}
-			System.out.println(repository.findByLastname(eddard.getLastname()).isEmpty() ? "FAIL" : "OK");
 		}
 
 		System.out.println("+---------------+");
 		System.out.println("|  " + template.opsForValue().get("success-token") + "  |");
 		System.out.println("+---------------+");
+
+		long endTime = System.nanoTime();
+		// get difference of two nanoTime values
+		long timeElapsed = endTime - startTime;
+
+
+		System.out.println("+************************************************+");
+		System.out.println("+                                                +");
+		System.out.println("* Execution time in nanoseconds  : " + timeElapsed);
+		System.out.println("* Execution time in milliseconds : " +
+				timeElapsed / 1000000);
+		System.out.println("+                                                +");
+		System.out.println("+************************************************+");
+		System.exit(0);
 	}
 }

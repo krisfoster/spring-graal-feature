@@ -1,0 +1,27 @@
+version: '3.1'
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/bitnami/redis/data'
+  app:
+      image: data-redis-openjdk:latest
+      #entrypoint: /bin/sh -c "psrecord \"java -jar ./app.jar\" --log /report/openjdk-profile.prof"
+      #entrypoint: /bin/sh -c "java -jar ./app.jar"
+      environment:
+        - REDIS_HOST=host.docker.internal
+        #- JAVA_OPTIONS=-XX:+PrintCompilation
+      mem_limit: 128m
+      cpus: 0.5
+      volumes:
+          - type: bind
+            source: ./report
+            target: /report
+volumes:
+  redis_data:
+    driver: local

@@ -1,4 +1,4 @@
-version: '3.1'
+version: '2.3'
 services:
   redis:
     image: 'bitnami/redis:latest'
@@ -9,8 +9,19 @@ services:
       - '6379:6379'
     volumes:
       - 'redis_data:/bitnami/redis/data'
-  data-redis:
-    image: data-redis:0.0.1-SNAPSHOT
+  app:
+      image: data-redis:ni-distroless
+      environment:
+        - REDIS_HOST=host.docker.internal
+      depends_on:
+        redis:
+          condition: service_started
+      mem_limit: 80m
+      cpu_shares: 512
+#      volumes:
+#          - type: bind
+#            source: ../report
+#            target: /report
 volumes:
   redis_data:
     driver: local
